@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario de Tienda — Refrigerador y Percha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EAF1F4;
+    --ink: #1C2B33;
+    --ink-soft: #52666E;
+    --frost-1: #DCEEF5;
+    --frost-2: #B9DCEB;
+    --frost-border: #8FC4DC;
+    --wood-1: #F3E9D8;
+    --wood-2: #E4D2AE;
+    --wood-border: #C9A96A;
+    --red: #C8102E;
+    --red-dark: #9C0C24;
+    --green: #2F7D5C;
+    --amber: #C6791C;
+    --amber-bg: #FBEAD3;
+    --card-bg: #FFFFFF;
+    --shadow: 0 2px 0 rgba(28,43,51,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    padding:24px 16px 60px;
+  }
+  .wrap{max-width:1100px;margin:0 auto;}
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:20px;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:14px;
+  }
+  h1{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:42px;
+    letter-spacing:0.5px;
+    margin:0;
+    line-height:1;
+  }
+  .subtitle{color:var(--ink-soft);font-size:14px;margin-top:4px;}
+
+  .tabs{display:flex;gap:8px;}
+  .tab-btn{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:10px 18px;
+    border:2px solid var(--ink);
+    background:var(--card-bg);
+    color:var(--ink);
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .tab-btn.active{background:var(--ink);color:#fff;}
+
+  .summary-bar{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:26px;
+  }
+  .summary-card{
+    background:var(--card-bg);
+    border:1px solid #D7E1E5;
+    border-radius:10px;
+    padding:14px 16px;
+    box-shadow:var(--shadow);
+  }
+  .summary-card .label{font-size:12px;color:var(--ink-soft);font-weight:600;}
+  .summary-card .value{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.3px;margin-top:2px;}
+
+  .zone{
+    border-radius:16px;
+    padding:22px 18px 26px;
+    margin-bottom:24px;
+  }
+  .zone.fridge{
+    background:linear-gradient(180deg,var(--frost-1),var(--frost-2));
+    border:2px solid var(--frost-border);
+  }
+  .zone.shelf{
+    background:linear-gradient(180deg,var(--wood-1),var(--wood-2));
+    border:2px solid var(--wood-border);
+  }
+  .zone-title{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:22px;
+    letter-spacing:1px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .zone-title .dot{width:10px;height:10px;border-radius:50%;}
+  .fridge .dot{background:#3E9DC2;}
+  .shelf .dot{background:var(--wood-border);}
+
+  .group-label{
+    font-size:12px;
+    font-weight:800;
+    color:var(--ink-soft);
+    margin:14px 0 8px;
+  }
+
+  .cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:12px;
+  }
+  .card{
+    background:var(--card-bg);
+    border-radius:12px;
+    padding:14px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    position:relative;
+    border:1px solid rgba(28,43,51,0.08);
+  }
+  .card.empty{opacity:0.55;}
+  .icon-row{display:flex;align-items:center;gap:10px;}
+  .icon-row svg{flex-shrink:0;}
+  .prod-name{font-weight:700;font-size:14px;line-height:1.2;}
+  .price-tag{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:15px;
+    color:var(--red);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .price-tag input{
+    width:56px;
+    border:none;
+    border-bottom:1.5px dashed var(--red);
+    font-family:'Bebas Neue',sans-serif;
+    font-size:15px;
+    color:var(--red);
+    background:transparent;
+    padding:0;
+  }
+  .stock-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .stock-badge{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:22px;
+    color:var(--ink);
+  }
+  .stock-badge.low{color:var(--amber);}
+  .stock-badge.out{color:var(--red);}
+
+  .stepper{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:#F2F5F6;
+    border-radius:8px;
+    padding:4px 4px;
+    margin-top:4px;
+  }
+  .stepper button{
+    width:28px;height:28px;
+    border-radius:6px;
+    border:none;
+    background:var(--ink);
+    color:#fff;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    line-height:1;
+  }
+  .stepper button:disabled{background:#B9C3C7;cursor:not-allowed;}
+  .stepper .sold-label{font-size:11px;color:var(--ink-soft);text-align:center;}
+  .stepper .sold-count{font-weight:800;font-size:14px;}
+
+  .low-flag{
+    position:absolute;
+    top:10px;right:10px;
+    background:var(--amber-bg);
+    color:var(--amber);
+    font-size:10px;
+    font-weight:800;
+    padding:2px 7px;
+    border-radius:20px;
+  }
+
+  /* Table view */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--card-bg);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  thead th{
+    background:var(--ink);
+    color:#fff;
+    text-align:left;
+    padding:10px 12px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  tbody td{
+    padding:9px 12px;
+    border-bottom:1px solid #EAEFF1;
+    font-size:13px;
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.cat-header td{
+    background:#F2F5F6;
+    font-weight:800;
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.4px;
+    padding:6px 12px;
+  }
+  td input[type=number]{
+    width:64px;
+    padding:4px 6px;
+    border:1px solid #D7E1E5;
+    border-radius:6px;
+    font-size:13px;
+  }
+  .num{font-variant-numeric:tabular-nums;}
+  .neg{color:var(--red);font-weight:700;}
+  .pos{color:var(--green);font-weight:700;}
+
+  .reset-btn{
+    margin-top:18px;
+    background:none;
+    border:2px solid var(--ink);
+    color:var(--ink);
+    font-weight:700;
+    font-size:13px;
+    padding:8px 16px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:10px;}
+
+  @media (max-width:640px){
+    h1{font-size:32px;}
+    .summary-bar{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Control de Inventario</h1>
+      <div class="subtitle">Refrigerador y percha — registra ventas y mira lo que queda</div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="visual">Vista Refrigerador/Percha</button>
+      <button class="tab-btn" data-tab="tabla">Tabla (Excel)</button>
+    </div>
+  </header>
+
+  <div class="summary-bar" id="summaryBar"></div>
+
+  <div id="view-visual"></div>
+  <div id="view-tabla" style="display:none;">
+    <table id="tablaInventario">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Precio unit.</th>
+          <th>Stock inicial</th>
+          <th>Vendidos</th>
+          <th>Quedan en percha</th>
+          <th>Valor vendido</th>
+        </tr>
+      </thead>
+      <tbody id="tablaBody"></tbody>
+    </table>
+    <p class="hint">Puedes editar el precio y la cantidad vendida directamente en la tabla.</p>
+  </div>
+
+  <button class="reset-btn" id="resetBtn">Reiniciar ventas del día</button>
+  <p class="hint">.</p>
+
+</div>
+
+<script>
+const PRODUCTS = [
+  {id:'club_g', name:'Club lata grande', cat:'CERVEZAS', zone:'fridge', shape:'can', stock:12, price:1.20, color:'#C8102E'},
+  {id:'club_p', name:'Club pequeña lata', cat:'CERVEZAS', zone:'fridge', shape:'can', stock:11, price:1.75, color:'#D9364F'},
+  {id:'club_pil', name:'Club lata grande pilsener', cat:'CERVEZAS', zone:'fridge', shape:'can', stock:9, price:2.00, color:'#B01B2E'},
+  {id:'club_v', name:'Club grande de vidrio', cat:'CERVEZAS', zone:'fridge', shape:'bottle', stock:24, price:3.00, color:'#7A9E6B'},
+
+  {id:'coca', name:'Coca Cola', cat:'GASEOSAS', zone:'fridge', shape:'bottle', stock:29, price:0.75, color:'#C8102E'},
+  {id:'sprite', name:'Sprite', cat:'GASEOSAS', zone:'fridge', shape:'bottle', stock:10, price:0.75, color:'#3E9E4F'},
+  {id:'fiora', name:'Fioravanti', cat:'GASEOSAS', zone:'fridge', shape:'bottle', stock:14, price:0.75, color:'#E0982A'},
+  {id:'fanta', name:'Fanta', cat:'GASEOSAS', zone:'fridge', shape:'bottle', stock:2, price:0.75, color:'#F07C1D'},
+
+  {id:'agua', name:'Agua', cat:'BEBIDAS', zone:'shelf', shape:'bottle', stock:35, price:0.75, color:'#4FA3C4'},
+  {id:'guitig', name:'Güitig', cat:'BEBIDAS', zone:'shelf', shape:'bottle', stock:12, price:0.75, color:'#2E7FA6'},
+  {id:'frutaris', name:'Frutaris', cat:'BEBIDAS', zone:'shelf', shape:'bottle', stock:12, price:0.50, color:'#E0982A'},
+];
+
+// live state: sold count per product
+const state = {};
+PRODUCTS.forEach(p => state[p.id] = {sold:0, price:p.price});
+
+function remaining(p){ return p.stock - state[p.id].sold; }
+
+function canSVG(color){
+  return `<svg width="34" height="46" viewBox="0 0 34 46">
+    <rect x="3" y="4" width="28" height="40" rx="6" fill="${color}"/>
+    <rect x="3" y="4" width="28" height="9" rx="6" fill="#ffffff" opacity="0.35"/>
+    <rect x="0" y="1" width="34" height="5" rx="2.5" fill="#B7BCC0"/>
+  </svg>`;
+}
+function bottleSVG(color){
+  return `<svg width="26" height="46" viewBox="0 0 26 46">
+    <rect x="10" y="0" width="6" height="10" fill="#B7BCC0"/>
+    <path d="M8 10 L18 10 L21 18 L21 42 Q21 45 18 45 L8 45 Q5 45 5 42 L5 18 Z" fill="${color}"/>
+    <rect x="8" y="18" width="10" height="8" fill="#ffffff" opacity="0.3"/>
+  </svg>`;
+}
+
+function stockClass(p){
+  const r = remaining(p);
+  if(r <= 0) return 'out';
+  if(r <= Math.max(2, Math.round(p.stock*0.15))) return 'low';
+  return '';
+}
+
+function productCard(p){
+  const r = remaining(p);
+  const cls = stockClass(p);
+  const icon = p.shape === 'can' ? canSVG(p.color) : bottleSVG(p.color);
+  const lowFlag = cls === 'low' ? '<div class="low-flag">Queda poco</div>' : (cls==='out' ? '<div class="low-flag" style="background:#FBE1E4;color:#C8102E;">Agotado</div>' : '');
+  return `
+  <div class="card ${r<=0?'empty':''}" data-id="${p.id}">
+    ${lowFlag}
+    <div class="icon-row">
+      ${icon}
+      <div>
+        <div class="prod-name">${p.name}</div>
+        <div class="price-tag">$<input type="number" step="0.01" min="0" value="${state[p.id].price.toFixed(2)}" data-price="${p.id}"></div>
+      </div>
+    </div>
+    <div class="stock-row">
+      <span>Quedan en percha</span>
+      <span class="stock-badge ${cls}">${r}</span>
+    </div>
+    <div class="stepper">
+      <button data-action="minus" data-id="${p.id}" ${state[p.id].sold<=0?'disabled':''}>–</button>
+      <div>
+        <div class="sold-label">vendidos</div>
+        <div class="sold-count">${state[p.id].sold}</div>
+      </div>
+      <button data-action="plus" data-id="${p.id}" ${r<=0?'disabled':''}>+</button>
+    </div>
+  </div>`;
+}
+
+function renderVisual(){
+  const fridgeProds = PRODUCTS.filter(p=>p.zone==='fridge');
+  const shelfProds = PRODUCTS.filter(p=>p.zone==='shelf');
+  const cats = (list) => [...new Set(list.map(p=>p.cat))];
+
+  let fridgeHTML = `<div class="zone fridge"><div class="zone-title"><span class="dot"></span>REFRIGERADOR</div>`;
+  cats(fridgeProds).forEach(cat=>{
+    fridgeHTML += `<div class="group-label">${cat}</div><div class="cards">`;
+    fridgeProds.filter(p=>p.cat===cat).forEach(p=>fridgeHTML += productCard(p));
+    fridgeHTML += `</div>`;
+  });
+  fridgeHTML += `</div>`;
+
+  let shelfHTML = `<div class="zone shelf"><div class="zone-title"><span class="dot"></span>PERCHA</div>`;
+  cats(shelfProds).forEach(cat=>{
+    shelfHTML += `<div class="group-label">${cat}</div><div class="cards">`;
+    shelfProds.filter(p=>p.cat===cat).forEach(p=>shelfHTML += productCard(p));
+    shelfHTML += `</div>`;
+  });
+  shelfHTML += `</div>`;
+
+  document.getElementById('view-visual').innerHTML = fridgeHTML + shelfHTML;
+}
+
+function renderTable(){
+  let rows = '';
+  let lastCat = null;
+  PRODUCTS.forEach(p=>{
+    if(p.cat !== lastCat){
+      rows += `<tr class="cat-header"><td colspan="7">${p.cat}</td></tr>`;
+      lastCat = p.cat;
+    }
+    const r = remaining(p);
+    const soldValue = (state[p.id].sold * state[p.id].price).toFixed(2);
+    rows += `<tr data-id="${p.id}">
+      <td>${p.name}</td>
+      <td>${p.cat}</td>
+      <td>$<input type="number" step="0.01" min="0" value="${state[p.id].price.toFixed(2)}" data-price-table="${p.id}"></td>
+      <td class="num">${p.stock}</td>
+      <td><input type="number" min="0" max="${p.stock}" value="${state[p.id].sold}" data-sold-table="${p.id}"></td>
+      <td class="num ${r<=0?'neg':''}">${r}</td>
+      <td class="num pos">$${soldValue}</td>
+    </tr>`;
+  });
+  document.getElementById('tablaBody').innerHTML = rows;
+}
+
+function renderSummary(){
+  let totalStock=0, totalSold=0, totalRemaining=0, revenueSold=0, revenuePotential=0;
+  PRODUCTS.forEach(p=>{
+    totalStock += p.stock;
+    totalSold += state[p.id].sold;
+    totalRemaining += remaining(p);
+    revenueSold += state[p.id].sold * state[p.id].price;
+    revenuePotential += p.stock * state[p.id].price;
+  });
+  document.getElementById('summaryBar').innerHTML = `
+    <div class="summary-card"><div class="label">Unidades totales</div><div class="value">${totalStock}</div></div>
+    <div class="summary-card"><div class="label">Vendidas hoy</div><div class="value">${totalSold}</div></div>
+    <div class="summary-card"><div class="label">Quedan en total</div><div class="value">${totalRemaining}</div></div>
+    <div class="summary-card"><div class="label">$ Vendido hoy</div><div class="value">$${revenueSold.toFixed(2)}</div></div>
+  `;
+}
+
+function renderAll(){
+  renderVisual();
+  renderTable();
+  renderSummary();
+  attachEvents();
+}
+
+function attachEvents(){
+  document.querySelectorAll('[data-action]').forEach(btn=>{
+    btn.onclick = () => {
+      const id = btn.getAttribute('data-id');
+      const action = btn.getAttribute('data-action');
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(action==='plus' && remaining(p) > 0) state[id].sold++;
+      if(action==='minus' && state[id].sold > 0) state[id].sold--;
+      renderAll();
+    };
+  });
+  document.querySelectorAll('[data-price]').forEach(inp=>{
+    inp.onchange = () => {
+      const id = inp.getAttribute('data-price');
+      const val = parseFloat(inp.value);
+      if(!isNaN(val) && val >= 0) state[id].price = val;
+      renderAll();
+    };
+  });
+  document.querySelectorAll('[data-price-table]').forEach(inp=>{
+    inp.onchange = () => {
+      const id = inp.getAttribute('data-price-table');
+      const val = parseFloat(inp.value);
+      if(!isNaN(val) && val >= 0) state[id].price = val;
+      renderAll();
+    };
+  });
+  document.querySelectorAll('[data-sold-table]').forEach(inp=>{
+    inp.onchange = () => {
+      const id = inp.getAttribute('data-sold-table');
+      const p = PRODUCTS.find(x=>x.id===id);
+      let val = parseInt(inp.value);
+      if(isNaN(val) || val < 0) val = 0;
+      if(val > p.stock) val = p.stock;
+      state[id].sold = val;
+      renderAll();
+    };
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.getAttribute('data-tab');
+    document.getElementById('view-visual').style.display = tab==='visual' ? '' : 'none';
+    document.getElementById('view-tabla').style.display = tab==='tabla' ? '' : 'none';
+  };
+});
+
+document.getElementById('resetBtn').onclick = () => {
+  PRODUCTS.forEach(p => state[p.id].sold = 0);
+  renderAll();
+};
+
+renderAll();
+</script>
+</body>
+</html>
